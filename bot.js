@@ -11,6 +11,10 @@ const token = 'MjY2MTg0NTM3NjQ0NDY2MTg2.C05_Ng.oG0Wl0XM6WrMQcRUsn2IssyyY-U';
 
 var request = require('request')
 
+Number.prototype.round = function(places) {
+  return +(Math.round(this + "e+" + places)  + "e-" + places);
+}
+
 bot.on('message', message => {
 
    if (message.content === '-help'){
@@ -29,96 +33,83 @@ bot.on('message', message => {
    }
 
 // OVERWATCH QUICK RAW
-   if (message.content === '-rawquick ') {
-      let url = 'https://api.lootbox.eu/pc/eu/Ruukasu-21150/quickplay/allHeroes/'
+   let battletag = message.content.slice(10)
+   if (message.content === '-rawquick ' + battletag) {
+      let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/quickplay/allHeroes/'
       message.channel.sendMessage(url)
       message.channel.sendMessage('loading...')
       request({
          url: url,
          json: true
       },
-      function(error, response, body, headers) {
+      function(error, response, body) {
          if (!error && response.statusCode === 200) {
             body = JSON.stringify(body)
             body = body.replace(/-/g, "")
             body = body.replace(/"""/g, "")
             body = body.replace(/","/g, '",\n"')
-            console.log('Searching for ' + battletag)
+            console.log('Searching Quickstats for ' + battletag)
             message.channel.sendMessage("```json\n" + body + "```")
          }
       })
    }
 
-   // OVERWATCH QUICK RAW
-      if (message.content === '-rawcomp ') {
-         let battletag = message.content.slice(9)
-         let url = 'https://api.lootbox.eu/pc/eu/' + battletag + '/competitive/allHeroes/'
-         message.channel.sendMessage(url)
-         message.channel.sendMessage('loading from DB...')
-         request({
-            url: url,
-            json: true
-         }, function(error, response, body) {
-            if (!error && response.statusCode === 200) {
-               body = JSON.stringify(body)
-               headers = JSON.stringify(headers)
-               body = body.replace(/-/g, "")
-               body = body.replace(/"""/g, "")
-               body = body.replace(/","/g, '",\n"')
-               message.channel.sendMessage("```json\n" + body + "```")
-               console.log('Searching for ' + battletag `${headers.date}`)
-            }
-         })
-      }
 
-      if (message.content === '-eucomp ') {
-         let battletag = message.content.slice(8)
-         let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/competitive/allHeroes/'
-         message.channel.sendMessage(url)
-         message.channel.sendMessage('loading from DB...')
-         request({
-            url: url,
-            json: true
-         }, function(error, response, body) {
-            if (!error && response.statusCode === 200) {
-               body = JSON.stringify(body)
-               body = body.replace(/-/g, "")
-               body = JSON.parse(body)
-               let kd = body.Eliminations
-               let Winrate = body.GamesWon / body.GamesPlayed * 100
-               let m = ''
-               m += '```ruby\n'
-               m += `${battletag} "Competitive Profile"\n`
-               m += `Comp Games Winrate: ${Winrate}%\n`
-               m += `Comp Games Played: ${body.GamesPlayed}\n`
-               m += `Comp Games Won: ${body.GamesWon}\n`
-               m += `Eliminations: ${body.Eliminations}\n`
-               m += `Kills/Death: ${body.EliminationsAverage}\n`
-               m += `Damage: ${body.DamageDone}\n`
-               m += `Heal: ${body.HealingDone}\n`
-               m += `Medals: ${body.Medals}\n`
-               m += `-Gold Medals: ${body.MedalsGold}\n`
-               m += `-Silver Medals: ${body.MedalsSilver}\n`
-               m += `-Bronze Medals: ${body.MedalsBronze}\n`
-               m += '```'
-               message.channel.sendMessage(m)
-            }
-         })
-      }
-
-// OVERWATCH PATCHNOTES
-   if (message.content === '-patchnotes') {
-      let patch = 'https://api.lootbox.eu/patch_notes'
-      message.channel.sendMessage(patch);
-      message.channel.sendMessage('loading from DB...')
+// OVERWATCH COMP RAW
+   if (message.content.startsWith('-rawcomp ') && message.content.match(/\b([aA-zZ])+#+(\d{4,5})\b/g)) {
+      let battletag = message.content.slice(9)
+      let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/competitive/allHeroes/'
+      message.channel.sendMessage(url)
+      message.channel.sendMessage('loading...')
       request({
-         patch: patch,
+         url: url,
          json: true
-      }, function(error, response, body) {
+      },
+      function(error, response, body) {
          if (!error && response.statusCode === 200) {
             body = JSON.stringify(body)
+            body = body.replace(/-/g, "")
+            body = body.replace(/"""/g, "")
+            body = body.replace(/","/g, '",\n"')
+            console.log('Searching Compstats for ' + battletag)
             message.channel.sendMessage("```json\n" + body + "```")
-            console.log('Searching for ' + patch);
+         }
+      })
+   }
+
+   if (message.content.startsWith('-comp ') && message.content.match(/\b([aA-zZ])+#+(\d{4,5})\b/g)) {
+      let battletag = message.content.slice(6)
+      let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/competitive/allHeroes/'
+      message.channel.sendMessage(url)
+      message.channel.sendMessage('loading...')
+      request({
+         url: url,
+         json: true
+      },
+      function(error, response, body) {
+         if (!error && response.statusCode === 200) {
+            body = JSON.stringify(body)
+            body = body.replace(/-/g, "")
+            body = JSON.parse(body)
+            let kd = body.Eliminations
+            let Winrate = body.GamesWon / body.GamesPlayed * 100
+            let m = ''
+            m += '```js\n'
+            m += `${battletag} "Competitive Profile"\n`
+            m += 'Comp Games Winrate:' + Winrate.round(2) + '%\n'
+            m += `Comp Games Played: ${body.GamesPlayed}\n`
+            m += `Comp Games Won: ${body.GamesWon}\n`
+            m += `Eliminations: ${body.Eliminations}\n`
+            m += `Kills/Death: ${body.EliminationsAverage}\n`
+            m += `Damage: ${body.DamageDone}\n`
+            m += `Heal: ${body.HealingDone}\n`
+            m += `Medals: ${body.Medals}\n`
+            m += `-Gold Medals: ${body.MedalsGold}\n`
+            m += `-Silver Medals: ${body.MedalsSilver}\n`
+            m += `-Bronze Medals: ${body.MedalsBronze}\n`
+            m += '```'
+            console.log('Searching Compstats for ' + battletag)
+            message.channel.sendMessage(m)
          }
       })
    }
@@ -150,6 +141,16 @@ bot.on('message', message => {
             process.exit(1)
         }, 1000)
     }
+
+   if (message.content.startsWith('.eval') && message.author.id === '64438454750031872' || message.content.startsWith('.eval') && message.author.id === '148764744231157760') {
+      try {
+          const com = eval(message.content.split(" ").slice(1).join(" "))
+             message.channel.sendMessage('```\n' + com + '```')
+         } catch (e) {
+             message.channel.sendMessage('```\n' + e + '```')
+         }
+      }
+
 });
 
 bot.on('ready', () => {
