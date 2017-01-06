@@ -21,8 +21,9 @@ bot.on('message', message => {
       let m = '``-ping = Ping Pong``\n'
       m += '``-userinfo = Your Userinfos``\n'
       m += '``-patchnotes = Overwatch Patchnotes``\n'
-      m += '``-eucomp <Overwatch Battletag> = Overwatch some Stats of all Heroes in Competitive``\n'
+      m += '``-comp <Overwatch Battletag> = Overwatch some Stats of all Heroes in Competitive``\n'
       m += '``-rawcomp <Overwatch Battletag> = Overwatch ALL Stats of all Heroes in Competitive``\n'
+      m += '``-quick <Overwatch Battletag> = Overwatch some Stats of all Heroes in Quickplay``\n'
       m += '``-rawquick <Overwatch Battletag> = Overwatch ALL Stats of all Heroes in Quickplay``\n'
       message.channel.sendMessage(m);
    }
@@ -33,8 +34,8 @@ bot.on('message', message => {
    }
 
 // OVERWATCH QUICK RAW
-   let battletag = message.content.slice(10)
-   if (message.content === '-rawquick ' + battletag) {
+   if (message.content.startsWith('-rawquick ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
+      let battletag = message.content.slice(10)
       let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/quickplay/allHeroes/'
       message.channel.sendMessage(url)
       message.channel.sendMessage('loading...')
@@ -56,7 +57,7 @@ bot.on('message', message => {
 
 
 // OVERWATCH COMP RAW
-   if (message.content.startsWith('-rawcomp ') && message.content.match(/\b([aA-zZ])+#+(\d{4,5})\b/g)) {
+   if (message.content.startsWith('-rawcomp ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
       let battletag = message.content.slice(9)
       let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/competitive/allHeroes/'
       message.channel.sendMessage(url)
@@ -77,7 +78,7 @@ bot.on('message', message => {
       })
    }
 
-   if (message.content.startsWith('-comp ') && message.content.match(/\b([aA-zZ])+#+(\d{4,5})\b/g)) {
+   if (message.content.startsWith('-comp ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
       let battletag = message.content.slice(6)
       let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/competitive/allHeroes/'
       message.channel.sendMessage(url)
@@ -95,7 +96,7 @@ bot.on('message', message => {
             let Winrate = body.GamesWon / body.GamesPlayed * 100
             let m = ''
             m += '```js\n'
-            m += `${battletag} "Competitive Profile"\n`
+            m += `${battletag} "Quick Profile"\n`
             m += 'Comp Games Winrate:' + Winrate.round(2) + '%\n'
             m += `Comp Games Played: ${body.GamesPlayed}\n`
             m += `Comp Games Won: ${body.GamesWon}\n`
@@ -109,6 +110,71 @@ bot.on('message', message => {
             m += `-Bronze Medals: ${body.MedalsBronze}\n`
             m += '```'
             console.log('Searching Compstats for ' + battletag)
+            message.channel.sendMessage(m)
+         }
+      })
+   }
+
+   if (message.content.startsWith('-quick ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
+      let battletag = message.content.slice(7)
+      let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/quickplay/allHeroes/'
+      message.channel.sendMessage(url)
+      message.channel.sendMessage('loading...')
+      request({
+         url: url,
+         json: true
+      },
+      function(error, response, body) {
+         if (!error && response.statusCode === 200) {
+            body = JSON.stringify(body)
+            body = body.replace(/-/g, "")
+            body = JSON.parse(body)
+            let m = ''
+            m += '```js\n'
+            m += `${battletag} "Quick Profile"\n`
+            m += `Quick Games Won: ${body.GamesWon}\n`
+            m += `Eliminations: ${body.Eliminations}\n`
+            m += `Kills/Death: ${body.EliminationsAverage}\n`
+            m += `Damage: ${body.DamageDone}\n`
+            m += `Heal: ${body.HealingDone}\n`
+            m += `Medals: ${body.Medals}\n`
+            m += `-Gold Medals: ${body.MedalsGold}\n`
+            m += `-Silver Medals: ${body.MedalsSilver}\n`
+            m += `-Bronze Medals: ${body.MedalsBronze}\n`
+            m += '```'
+            console.log('Searching Quickstats for ' + battletag)
+            message.channel.sendMessage(m)
+         }
+      })
+   }
+
+   if (message.content.startsWith('-owprofile ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
+      let battletag = message.content.slice(11)
+      let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/profile'
+      message.channel.sendMessage(url)
+      message.channel.sendMessage('loading...')
+      request({
+         url: url,
+         json: true
+      },
+      function(error, response, body) {
+         if (!error && response.statusCode === 200) {
+            body = JSON.stringify(body)
+            body = body.replace(/-/g, "")
+            body = JSON.parse(body)
+            let playtime = body.quick + body.competitive
+            let m = ''
+            m += `${body.avatar}\n`
+            m += '```js\n'
+            m += `${battletag} "Overview"\n`
+            m += `Level: ${body.level}\n`
+            m += `Playtime: ${playtime}\n`
+            m += `-Quick: ${body.quick}\n`
+            m += `-Competitive: ${body.competitive}\n`
+            m += `Rank: ${body.rank}\n`
+            m += '```'
+            m += `${body.rank_img}\n`
+            console.log('Searching Profile Overview for ' + battletag)
             message.channel.sendMessage(m)
          }
       })
