@@ -17,24 +17,25 @@ Number.prototype.round = function(places) {
 
 bot.on('message', message => {
 
-   if (message.content === '-help'){
-      let m = '``-ping = Ping Pong``\n'
-      m += '``-userinfo = Your Userinfos``\n'
-      m += '``-patchnotes = Overwatch Patchnotes``\n'
-      m += '``-comp <Overwatch Battletag> = Overwatch some Stats of all Heroes in Competitive``\n'
-      m += '``-rawcomp <Overwatch Battletag> = Overwatch ALL Stats of all Heroes in Competitive``\n'
-      m += '``-quick <Overwatch Battletag> = Overwatch some Stats of all Heroes in Quickplay``\n'
-      m += '``-rawquick <Overwatch Battletag> = Overwatch ALL Stats of all Heroes in Quickplay``\n'
+   if (message.content === '=help'){
+      let m = '``=ping = Ping Pong``\n'
+      m += '``=userinfo = Your userinfos``\n'
+      m += '``=patchnotes = Overwatch patchnotes``\n'
+      m += '``=owprofile <Overwatch Battletag> = Your overall stats``\n'
+      m += '``=comp <Overwatch Battletag> = Overwatch some stats of all heroes in Competitive``\n'
+      m += '``=rawcomp <Overwatch Battletag> = Overwatch ALL stats of all heroes in Competitive``\n'
+      m += '``=quick <Overwatch Battletag> = Overwatch some stats of all heroes in Quickplay``\n'
+      m += '``=rawquick <Overwatch Battletag> = Overwatch ALL stats of all heroes in Quickplay``\n'
       message.channel.sendMessage(m);
    }
 
 //PING
-   if (message.content === '-ping') {
+   if (message.content === '=ping') {
       message.channel.sendMessage('pong')
    }
 
 // OVERWATCH QUICK RAW
-   if (message.content.startsWith('-rawquick ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
+   if (message.content.startsWith('=rawquick ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
       let battletag = message.content.slice(10)
       let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/quickplay/allHeroes/'
       message.channel.sendMessage(url)
@@ -56,8 +57,8 @@ bot.on('message', message => {
    }
 
 
-// OVERWATCH COMP RAW
-   if (message.content.startsWith('-rawcomp ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
+// OVERWATCH COMPETITIVE STATS (LONG)
+   if (message.content.startsWith('=rawcomp ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
       let battletag = message.content.slice(9)
       let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/competitive/allHeroes/'
       message.channel.sendMessage(url)
@@ -78,7 +79,8 @@ bot.on('message', message => {
       })
    }
 
-   if (message.content.startsWith('-comp ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
+//OVERWATCH COMPETITIVE STATS (SHORT)
+   if (message.content.startsWith('=comp ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
       let battletag = message.content.slice(6)
       let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/competitive/allHeroes/'
       message.channel.sendMessage(url)
@@ -115,7 +117,8 @@ bot.on('message', message => {
       })
    }
 
-   if (message.content.startsWith('-quick ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
+//OVERWATCH QUICKGAME STATS
+   if (message.content.startsWith('=quick ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
       let battletag = message.content.slice(7)
       let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/quickplay/allHeroes/'
       message.channel.sendMessage(url)
@@ -148,7 +151,8 @@ bot.on('message', message => {
       })
    }
 
-   if (message.content.startsWith('-owprofile ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
+// OVERWATCH PROFILE
+   if (message.content.startsWith('=owprofile ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
       let battletag = message.content.slice(11)
       let url = 'https://api.lootbox.eu/pc/eu/' + battletag.replace('#', '-') + '/profile'
       message.channel.sendMessage(url)
@@ -169,8 +173,8 @@ bot.on('message', message => {
             m += `${battletag} "Overview"\n`
             m += `Level: ${body.level}\n`
             m += `Playtime: ${playtime}\n`
-            m += `-Quick: ${body.quick}\n`
-            m += `-Competitive: ${body.competitive}\n`
+            m += `=quick: ${body.quick}\n`
+            m += `=competitive: ${body.competitive}\n`
             m += `Rank: ${body.rank}\n`
             m += '```'
             m += `${body.rank_img}\n`
@@ -180,11 +184,34 @@ bot.on('message', message => {
       })
    }
 
+   // OVERWATCH PATCHNOTES
+   if (message.content === '=patchnotes'){
+      let url = 'https://api.lootbox.eu/patch_notes'
+      message.channel.sendMessage(url);
+      message.channel.sendMessage('loading...')
+      request({
+         url: url,
+         json: true
+      }, function(error, response, body) {
+         if (!error && response.statusCode === 200) {
+            body = JSON.stringify(body)
+            body = JSON.parse(body)
+            let m = ''
+            m += '```json'
+            m += `${body.program}\n`
+            m += `${body.patchVersion}\n`
+            m += `${body.status}\n`
+            m += `${body.detail}\n`
+            m += '```'
+            message.channel.sendMessage(m)
+         }
+      })
+   }
+
 // USERINFO
-   if (message.content === '-userinfo'){
+   if (message.content === '=userinfo'){
       let m = message.author.username + '\n'
       m += message.author.id + '\n',
-      m += message.author.permium + '\n',
       m += message.author.avatarURL
       message.channel.sendMessage(m);
    }
