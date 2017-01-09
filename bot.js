@@ -1,9 +1,4 @@
 console.log('<=== STARTING BOT ===>');
-console.log('+');
-console.log('+');
-console.log('+');
-console.log('+');
-console.log('+');
 
 const Discord = require('discord.js');
 const bot = new Discord.Client();
@@ -17,6 +12,7 @@ Number.prototype.round = function(places) {
 
 bot.on('message', message => {
 
+//HELP
    if (message.content === '=help'){
       let m = '``=ping = Ping Pong``\n'
       m += '``=userinfo = Your userinfos``\n'
@@ -34,6 +30,49 @@ bot.on('message', message => {
       message.channel.sendMessage('pong')
    }
 
+// USERINFO
+   if (message.content === '=userinfo'){
+      let m = message.author.username + '\n'
+      m += message.author.id + '\n',
+      m += message.author.avatarURL
+      message.channel.sendMessage(m);
+   }
+
+// KILLING THE BOT
+
+    if (message.content.startsWith('.kill') && message.author.id === '148764744231157760') {
+      var rand = new Array ();
+      rand[0] = "Killed by Hanzo";
+      rand[1] = "Sleeping with the fishes";
+      rand[2] = "Going to sleep now";
+      rand[3] = "You know, shatter arrow...";
+      rand[4] = "Hasta la vista, baby";
+      rand[5] = "Shutting down the Computer";
+      rand[6] = "Quitting time";
+      var i = Math.floor(7*Math.random())
+        message.channel.sendMessage(rand[i])
+        setTimeout(function() {
+            process.exit(1)
+        }, 1000)
+    }
+
+//BOT SERVER TEST
+   if (message.content.startsWith('.eval') && message.author.id === '64438454750031872' || message.content.startsWith('.eval') && message.author.id === '148764744231157760') {
+      try {
+          const com = eval(message.content.split(" ").slice(1).join(" "))
+             message.channel.sendMessage('```\n' + com + '```')
+         } catch (e) {
+             message.channel.sendMessage('```\n' + e + '```')
+         }
+      }
+
+//ROLEPLAY
+   {
+   let text = message.content.slice(4)
+   if (message.content === ('=rp ' + text) && message.author.id === '148764744231157760') {
+      bot.channels.get('136207583584190466').sendMessage(text)
+   }}
+
 // OVERWATCH QUICK RAW
    if (message.content.startsWith('=rawquick ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
       let battletag = message.content.slice(10)
@@ -48,9 +87,8 @@ bot.on('message', message => {
          if (!error && response.statusCode === 200) {
             body = JSON.stringify(body)
             body = body.replace(/-/g, "")
-            body = body.replace(/"""/g, "")
             body = body.replace(/","/g, '",\n"')
-            console.log('Searching Quickstats for ' + battletag)
+            console.log('Searching quickstats for ' + battletag)
             message.channel.sendMessage("```json\n" + body + "```")
          }
       })
@@ -71,9 +109,8 @@ bot.on('message', message => {
          if (!error && response.statusCode === 200) {
             body = JSON.stringify(body)
             body = body.replace(/-/g, "")
-            body = body.replace(/"""/g, "")
             body = body.replace(/","/g, '",\n"')
-            console.log('Searching Compstats for ' + battletag)
+            console.log('Searching compstats for ' + battletag)
             message.channel.sendMessage("```json\n" + body + "```")
          }
       })
@@ -93,6 +130,7 @@ bot.on('message', message => {
          if (!error && response.statusCode === 200) {
             body = JSON.stringify(body)
             body = body.replace(/-/g, "")
+            body = body.replace(/","/g, '",\n"')
             body = JSON.parse(body)
             let kd = body.Eliminations
             let Winrate = body.GamesWon / body.GamesPlayed * 100
@@ -107,9 +145,9 @@ bot.on('message', message => {
             m += `Damage: ${body.DamageDone}\n`
             m += `Heal: ${body.HealingDone}\n`
             m += `Medals: ${body.Medals}\n`
-            m += `-Gold Medals: ${body.MedalsGold}\n`
-            m += `-Silver Medals: ${body.MedalsSilver}\n`
-            m += `-Bronze Medals: ${body.MedalsBronze}\n`
+            m += `- Gold Medals: ${body.MedalsGold}\n`
+            m += `- Silver Medals: ${body.MedalsSilver}\n`
+            m += `- Bronze Medals: ${body.MedalsBronze}\n`
             m += '```'
             console.log('Searching Compstats for ' + battletag)
             message.channel.sendMessage(m)
@@ -131,9 +169,10 @@ bot.on('message', message => {
          if (!error && response.statusCode === 200) {
             body = JSON.stringify(body)
             body = body.replace(/-/g, "")
+            body = body.replace(/","/g, '",\n"')
             body = JSON.parse(body)
             let m = ''
-            m += '```js\n'
+            m += '```json\n'
             m += `${battletag} "Quick Profile"\n`
             m += `Quick Games Won: ${body.GamesWon}\n`
             m += `Eliminations: ${body.Eliminations}\n`
@@ -141,9 +180,9 @@ bot.on('message', message => {
             m += `Damage: ${body.DamageDone}\n`
             m += `Heal: ${body.HealingDone}\n`
             m += `Medals: ${body.Medals}\n`
-            m += `-Gold Medals: ${body.MedalsGold}\n`
-            m += `-Silver Medals: ${body.MedalsSilver}\n`
-            m += `-Bronze Medals: ${body.MedalsBronze}\n`
+            m += `- Gold Medals: ${body.MedalsGold}\n`
+            m += `- Silver Medals: ${body.MedalsSilver}\n`
+            m += `- Bronze Medals: ${body.MedalsBronze}\n`
             m += '```'
             console.log('Searching Quickstats for ' + battletag)
             message.channel.sendMessage(m)
@@ -165,16 +204,17 @@ bot.on('message', message => {
          if (!error && response.statusCode === 200) {
             body = JSON.stringify(body)
             body = body.replace(/-/g, "")
+            body = body.replace(/","/g, '",\n"')
             body = JSON.parse(body)
             let playtime = body.quick + body.competitive
             let m = ''
             m += `${body.avatar}\n`
-            m += '```js\n'
+            m += '```json\n'
             m += `${battletag} "Overview"\n`
             m += `Level: ${body.level}\n`
             m += `Playtime: ${playtime}\n`
-            m += `=quick: ${body.quick}\n`
-            m += `=competitive: ${body.competitive}\n`
+            m += `- quick: ${body.quick}\n`
+            m += `- competitive: ${body.competitive}\n`
             m += `Rank: ${body.rank}\n`
             m += '```'
             m += `${body.rank_img}\n`
@@ -187,63 +227,28 @@ bot.on('message', message => {
    // OVERWATCH PATCHNOTES
    if (message.content === '=patchnotes'){
       let url = 'https://api.lootbox.eu/patch_notes'
-      message.channel.sendMessage(url);
+      message.channel.sendMessage(url)
       message.channel.sendMessage('loading...')
       request({
          url: url,
          json: true
-      }, function(error, response, body) {
+      },
+      function(error, response, body) {
          if (!error && response.statusCode === 200) {
             body = JSON.stringify(body)
-            body = JSON.parse(body)
+            body = body.replace(/-/g, "")
+            body = body.replace(/","/g, '",\n"')
+            let test = JSON.parse(body)
             let m = ''
-            m += '```json'
-            m += `${body.program}\n`
-            m += `${body.patchVersion}\n`
-            m += `${body.status}\n`
-            m += `${body.detail}\n`
+            m += '```json\n'
+            m += `Version: ${test.patchVersion}\n`
+            m += `Status: ${test.status}\n`
+            m += `${test.detail}\n`
             m += '```'
-            message.channel.sendMessage(m)
+            message.channel.sendMessage(test)
          }
       })
    }
-
-// USERINFO
-   if (message.content === '=userinfo'){
-      let m = message.author.username + '\n'
-      m += message.author.id + '\n',
-      m += message.author.avatarURL
-      message.channel.sendMessage(m);
-   }
-
-
-// KILLING THE BOT
-
-    if (message.content.startsWith('.kill') && message.author.id === '148764744231157760') {
-      var rand = new Array ();
-      rand[0] = "Killed by Hanzo";
-      rand[1] = "Sleeping with the fishes";
-      rand[2] = "Going to sleep now";
-      rand[3] = "You know, shatter arrow...";
-      rand[4] = "Hasta la vista, baby";
-      rand[5] = "Shutting down the Computer";
-      rand[6] = "Quitting time";
-      var i = Math.floor(7*Math.random())
-        message.channel.sendMessage(rand[i])
-        setTimeout(function() {
-            process.exit(1)
-        }, 1000)
-    }
-
-   if (message.content.startsWith('.eval') && message.author.id === '64438454750031872' || message.content.startsWith('.eval') && message.author.id === '148764744231157760') {
-      try {
-          const com = eval(message.content.split(" ").slice(1).join(" "))
-             message.channel.sendMessage('```\n' + com + '```')
-         } catch (e) {
-             message.channel.sendMessage('```\n' + e + '```')
-         }
-      }
-
 });
 
 bot.on('ready', () => {
