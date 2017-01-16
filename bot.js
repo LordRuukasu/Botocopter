@@ -12,6 +12,7 @@ Number.prototype.round = function(places) {
 
 bot.on('message', message => {
 
+
 //HELP
    if (message.content === '=help'){
       let m = '``=ping = Ping Pong``\n'
@@ -22,7 +23,7 @@ bot.on('message', message => {
       m += '``=rawcomp <Overwatch Battletag> = Overwatch ALL stats of all heroes in Competitive``\n'
       m += '``=quick <Overwatch Battletag> = Overwatch some stats of all heroes in Quickplay``\n'
       m += '``=rawquick <Overwatch Battletag> = Overwatch ALL stats of all heroes in Quickplay``\n'
-      message.channel.sendMessage(m);
+      message.author.sendMessage(m);
    }
 
 //PING
@@ -49,7 +50,9 @@ bot.on('message', message => {
       rand[4] = "Hasta la vista, baby";
       rand[5] = "Shutting down the Computer";
       rand[6] = "Quitting time";
-      var i = Math.floor(7*Math.random())
+      rand[7] = "My work here is done";
+      rand[8] = "/tableflip";
+      var i = Math.floor(9*Math.random())
         message.channel.sendMessage(rand[i])
         setTimeout(function() {
             process.exit(1)
@@ -249,6 +252,7 @@ bot.on('message', message => {
          }
       })
    }
+
 });
 
 bot.on('ready', () => {
