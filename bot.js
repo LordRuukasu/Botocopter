@@ -5,6 +5,7 @@ const bot = new Discord.Client();
 const token = 'MjY2MTg0NTM3NjQ0NDY2MTg2.C05_Ng.oG0Wl0XM6WrMQcRUsn2IssyyY-U';
 
 var request = require('request')
+var rls = require('rls-api');
 
 Number.prototype.round = function(places) {
   return +(Math.round(this + "e+" + places)  + "e-" + places);
@@ -41,7 +42,7 @@ bot.on('message', message => {
 
 // KILLING THE BOT
 
-    if (message.content.startsWith('.kill') && message.author.id === '148764744231157760') {
+    if (message.content.startsWith('=kill') && message.author.id === '148764744231157760') {
       var rand = new Array ();
       rand[0] = "Killed by Hanzo";
       rand[1] = "Sleeping with the fishes";
@@ -60,7 +61,7 @@ bot.on('message', message => {
     }
 
 //BOT SERVER TEST
-   if (message.content.startsWith('.eval') && message.author.id === '64438454750031872' || message.content.startsWith('.eval') && message.author.id === '148764744231157760') {
+   if (message.content.startsWith('=eval') && message.author.id === '64438454750031872' || message.content.startsWith('=eval') && message.author.id === '148764744231157760') {
       try {
           const com = eval(message.content.split(" ").slice(1).join(" "))
              message.channel.sendMessage('```\n' + com + '```')
@@ -72,7 +73,7 @@ bot.on('message', message => {
 //ROLEPLAY
    {
    let text = message.content.slice(4)
-   if (message.content === ('=rp ' + text) && message.author.id === '148764744231157760') {
+   if (message.content.startsWith('=rp ' + text) && message.author.id === '148764744231157760') {
       bot.channels.get('136207583584190466').sendMessage(text)
    }}
 
@@ -97,6 +98,27 @@ bot.on('message', message => {
       })
    }
 
+   if (message.content.startsWith('=embed ')){
+      exports.run = function(bot, message, args) {
+          const discord = require('discord.js')
+          const embed = new discord.RichEmbed()
+      	.setThumbnail()
+      	.setAuthor('Botocopter', 'https://cdn.discordapp.com/attachments/223447405478150144/266918526818713600/avatar3.png')
+      	.setTitle('Very Nice Title')
+      	.setDescription('The text of the body, essentially')
+      	.setURL('https://discord.js.org/#/docs/main/indev/class/RichEmbed')
+      	.setColor('#CA4746')
+
+      	.addField('Titel', 'Feld')
+      	.addField('Titel2', 'Feld2')
+      	.addField(':thinking:', ':thinking:')
+
+      	//.setImage('https://goo.gl/D3uKk2')
+      	.setFooter('Bot by LordRuukasu', 'https://cdn.discordapp.com/avatars/148764744231157760/c98b013e2dc1b91fa01cfda5a5e527da.jpg?size=1024')
+      	.setTimestamp()
+      	message.channel.sendEmbed(embed)
+      }
+   }
 
 // OVERWATCH COMPETITIVE STATS (LONG)
    if (message.content.startsWith('=rawcomp ') && message.content.match(/\b(.)+#+(\d{4,5})\b/g)) {
@@ -241,16 +263,30 @@ bot.on('message', message => {
             body = JSON.stringify(body)
             body = body.replace(/-/g, "")
             body = body.replace(/","/g, '",\n"')
-            let test = JSON.parse(body)
+            body = JSON.parse(body)
             let m = ''
             m += '```json\n'
-            m += `Version: ${test.patchVersion}\n`
-            m += `Status: ${test.status}\n`
-            m += `${test.detail}\n`
+            m += `Version: ${body.patchVersion}\n`
+            m += `Status: ${body.status}\n`
+            m += `${body.detail}\n`
             m += '```'
-            message.channel.sendMessage(test)
+            message.channel.sendMessage(m)
          }
       })
+   }
+
+   if (message.content === '=rlplayer'){
+      client.searchPlayers("TriggeredTryhard", function(status, data){
+         if(status == 200){
+            let m = ''
+            m += '```json\n'
+            m += 'Player Search Data:\n'
+            m += 'Results:  + data.results\n'
+            m += 'Total Results: " + data.totalResults'
+            m += '```'
+            message.channel.sendMessage(m)
+         }
+      });
    }
 
 });
